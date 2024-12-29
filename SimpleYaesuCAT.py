@@ -4,6 +4,7 @@ import serial
 import serial.tools.list_ports
 import time
 import threading
+import sys
 
 class SerialConnectionApp:
     def __init__(self, root):
@@ -34,8 +35,8 @@ class SerialConnectionApp:
         self.active_vfo_value = tk.Label(self.status_frame, text="N/A")
         self.active_vfo_value.grid(row=3, column=1, padx=5, pady=5)
 
-        self.refresh_button = tk.Button(self.status_frame, text="Refresh", command=self.refresh_status)
-        self.refresh_button.grid(row=4, columnspan=2, pady=10)
+        #self.refresh_button = tk.Button(self.status_frame, text="Refresh", command=self.refresh_status)
+        #self.refresh_button.grid(row=4, columnspan=2, pady=10)
 
         # Frame 2: Tune Controls Section
         self.tune_frame = tk.LabelFrame(self.root, text="Tune Controls", padx=10, pady=10)
@@ -93,7 +94,12 @@ class SerialConnectionApp:
         self.set_serial_button = tk.Button(self.serial_frame, text="Set", command=self.set_serial_params)
         self.set_serial_button.grid(row=4, columnspan=2, pady=10)
 
-
+        # Frame 4: Quit Section
+        self.quit_frame = tk.LabelFrame(self.root, text="Program Commands", padx=10, pady=10)
+        self.quit_frame.pack(fill="both", expand=True, padx=10, pady=10)
+        self.quit_button = tk.Button(self.quit_frame, text="Quit", command=self.quit)
+        #self.quit_button.grid(row=0, columnspan=2, pady=10, padx=10)
+        self.quit_button.pack(side="top", expand=True)
 
         # Initialize serial connection
         self.serial_lock = threading.Lock()
@@ -113,6 +119,8 @@ class SerialConnectionApp:
         available_ports = self.get_available_com_ports()
         return "COM20" if "COM20" in available_ports else available_ports[0] if available_ports else "N/A"
 
+    def quit(self):
+        sys.exit()
 
     def set_serial_params(self):
         """Initialize the serial connection based on the user inputs."""
@@ -149,18 +157,18 @@ class SerialConnectionApp:
         except serial.SerialException as e:
             print(f"Error connecting to serial port: {e}")
             messagebox.showerror("Serial Connection Error", f"Error connecting to serial port: {e}")
-        self.refresh_status
+        #self.refresh_status
 
     def refresh_status(self):
         """Refresh the status display with the latest information."""
-        print("Refreshing...")
-        self.refresh_button.config(state='disabled', disabledforeground=self.refresh_button["foreground"])
+        #print("Refreshing...")
+        #self.refresh_button.config(state='disabled', disabledforeground=self.refresh_button["foreground"])
         with self.serial_lock:
             self.update_transmit_power()
             self.update_tuning_status()
             self.update_active_vfo()
             self.update_frequency()
-        self.refresh_button.config(state='normal')
+        #self.refresh_button.config(state='normal')
 
     def refresh_status_periodically(self):
         """Periodically refresh the status every 15 seconds."""
@@ -169,13 +177,13 @@ class SerialConnectionApp:
             self.refresh_status()
 
     def update_transmit_power(self):
-        print("\tUpdate transmitpower")
+        #print("\tUpdate transmitpower")
         """Get the transmit power and update the status display."""
         if self.ser:
             self.ser.write(b"PC;")
             #response = self.ser.readline().decode().strip()
             response = self.ser.read_until(';').decode().strip()
-            print(f'\t\t{response}')
+            #print(f'\t\t{response}')
             if response.startswith("PC"):
                 power = response[2:-1]  # Remove "PC" and ";"
                 self.transmit_power_value.config(text=f"{int(power)}w")  # Remove leading zeros and append "w"
@@ -183,7 +191,7 @@ class SerialConnectionApp:
                 print(f"Invalid transmit power response: {response}")
 
     def update_tuning_status(self):
-        print("\tUpdate tuningstatus")
+        #print("\tUpdate tuningstatus")
         """Get the antenna tuner status and update the status display."""
         if self.ser:
             self.ser.write(b"AC;")
@@ -196,7 +204,7 @@ class SerialConnectionApp:
                 print(f"Invalid tuning status response: {response}")
 
     def update_active_vfo(self):
-        print("\tUpdate vfo")
+        #print("\tUpdate vfo")
         """Get the active VFO and update the status display."""
         if self.ser:
             self.ser.write(b"VS;")
@@ -209,7 +217,7 @@ class SerialConnectionApp:
                 print(f"Invalid VFO response: {response}")
 
     def update_frequency(self):
-        print("\tUpdate freq")
+        #print("\tUpdate freq")
         """Get the frequency of the active VFO and update the status display."""
         if self.ser:
             if self.active_vfo_value.cget("text") == "VFO-A":
@@ -229,12 +237,12 @@ class SerialConnectionApp:
         if self.ser:
             self.ser.write(b"AC003;")
             response = self.ser.read_until(';').decode().strip()
-            print(response)
+            #print(response)
             if response == "AC003;":
                 print("Tune command sent.")
             else:
                 print(f"Error sending tune command: {response}")
-                input("enter to continue")
+                #input("enter to continue")
 
     def set_transmit_power(self):
         """Set the transmit power based on the user input."""
